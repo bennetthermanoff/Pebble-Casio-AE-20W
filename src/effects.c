@@ -312,7 +312,7 @@ void effect_invert_brightness(GContext* ctx,  GRect position, void* param) {
   bitmap_info.bitmap_format = gbitmap_get_format(fb);
 
   GColor pixel;
-  GColor pixel_new;
+  GColor pixel_new = GColorBlack;
   
   for (int y = 0; y < position.size.h; y++) {
      for (int x = 0; x < position.size.w; x++) {
@@ -619,7 +619,7 @@ void effect_lens(GContext* ctx,  GRect position, void* param){
         set_pixel(bitmap_info, yCn -y, xCn +x, get_pixel(bitmap_info, yCn -Y1, xCn +X1));
         set_pixel(bitmap_info, yCn -y, xCn -x, get_pixel(bitmap_info, yCn -Y1, xCn -X1));
       }
-    graphics_release_frame_buffer(ctx, fb);
+  graphics_release_frame_buffer(ctx, fb);
 //Todo: Change to lock-up arcsin table in the future. (Currently using floating point math library that is relatively big & slow)
 }
   
@@ -685,7 +685,9 @@ void effect_fps(GContext* ctx, GRect position, void* param) {
     time_ms(&tt,&ms);
     ++((EffectFPS*)param)->frame;
     uint32_t fp100s = (100000*((EffectFPS*)param)->frame)/((tt-((EffectFPS*)param)->starttt)*1000+ms-((EffectFPS*)param)->startms);
-    snprintf(buff,sizeof(buff),"FPS:%d.%02d",(int)fp100s/100,(int)fp100s%100);
+    char buff2[12];
+    snprintf(buff2, sizeof(buff2), "FPS:%d.", (int)fp100s/100);
+    snprintf(buff, sizeof(buff), "%s%02d", buff2, (int)fp100s%100);
     graphics_context_set_stroke_color(ctx, GColorWhite);
     graphics_draw_text(ctx, buff, font, GRect(0, 0, position.size.w, position.size.h), GTextOverflowModeWordWrap, GTextAlignmentLeft, NULL);
   }

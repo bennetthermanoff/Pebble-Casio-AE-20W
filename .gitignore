@@ -1,0 +1,10 @@
+# Pebble build output
+build/
+.lock-waf_linux_build
+
+# Node / Clay
+node_modules/
+package-lock.json
+
+# Old JS files (replaced by src/pkjs/)
+src/js/
