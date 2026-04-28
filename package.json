@@ -1,63 +1,35 @@
 {
-  "name": "pebble-casio-ae20w",
   "author": "Bennett H",
-  "description": "Forked from PanicMan's Casio AE-20W watchface. Updated to support Pebble Time 2 (Emery). The background images are just upscaled but fonts/dials are new. If you are a talented pixel artist please feel free to submit new background art!",
-  "version": "2.6.0",
-  "keywords": ["pebble-app"],
-  "private": true,
   "dependencies": {
     "pebble-clay": "^1.0.4"
   },
+  "keywords": [],
+  "name": "casio-ae-20w",
   "pebble": {
-    "displayName": "Casio AE-20W",
-    "uuid": "36ceec93-b32e-47e3-8353-971daf398007",
-    "sdkVersion": "3",
-    "enableMultiJS": true,
-    "projectType": "native",
-    "capabilities": ["configurable"],
-    "targetPlatforms": ["aplite", "basalt", "emery"],
-    "watchapp": { "watchface": true },
-    "publishedMedia": [
-      {
-        "type": "screenshot",
-        "platforms": ["emery"],
-        "file": "screenshots/screenshot_emery.png"
-      }
+    "capabilities": [
+      "configurable"
     ],
+    "displayName": "Casio AE-20W",
+    "enableMultiJS": true,
     "messageKeys": {
-      "_UNUSED":  0,
-      "inv":      1,
-      "vibr":     2,
-      "datefmt":  3,
-      "secs":     4,
-      "vibr_bt":  5,
+      "datefmt": 3,
       "datemode": 6,
-      "showsec":  7,
-      "redsec":   8
+      "inv": 1,
+      "redsec": 8,
+      "secs": 4,
+      "showsec": 7,
+      "vibr": 2,
+      "vibr_bt": 5
     },
+    "projectType": "native",
     "resources": {
       "media": [
-        {
-          "file": "images/Background.png",
-          "name": "IMAGE_BACKGROUND",
-          "type": "bitmap"
-        },
-        {
-          "file": "images/MenuImage.png",
-          "menuIcon": true,
-          "name": "IMAGE_MENU",
-          "type": "bitmap"
-        },
-        {
-          "file": "images/Battery.png",
-          "name": "IMAGE_UTILITIES",
-          "type": "bitmap"
-        },
         {
           "characterRegex": "[-/0-9.]",
           "compatibility": "2.7",
           "file": "fonts/DIGITALBOLD2.TTF",
           "name": "FONT_DIGITAL_20",
+          "targetPlatforms": null,
           "type": "font"
         },
         {
@@ -65,6 +37,7 @@
           "compatibility": "2.7",
           "file": "fonts/DIGITALBOLD2.TTF",
           "name": "FONT_DIGITAL_30",
+          "targetPlatforms": null,
           "type": "font"
         },
         {
@@ -72,6 +45,7 @@
           "compatibility": "2.7",
           "file": "fonts/DIGITALBOLD2.TTF",
           "name": "FONT_DIGITAL_40",
+          "targetPlatforms": null,
           "trackingAdjust": -1,
           "type": "font"
         },
@@ -79,31 +53,65 @@
           "characterRegex": "[-/0-9.:\\s]",
           "file": "fonts/DSEG/DSEG7Classic-Bold.ttf",
           "name": "FONT_DSEG_18",
-          "targetPlatforms": ["emery"],
-          "type": "font"
-        },
-        {
-          "characterRegex": "[-/0-9.:\\s]",
-          "file": "fonts/DSEG/DSEG7Classic-Bold.ttf",
-          "name": "FONT_DSEG_27S_27",
-          "targetPlatforms": ["emery"],
-          "type": "font"
-        },
-        {
-          "characterRegex": "[-/0-9.:\\sA-Z]",
-          "file": "fonts/DSEG/DSEG14Classic-Regular.ttf",
-          "name": "FONT_DSEG_27_27",
-          "targetPlatforms": ["emery"],
+          "targetPlatforms": [
+            "emery"
+          ],
           "type": "font"
         },
         {
           "characterRegex": "[-/0-9.:\\s]",
           "file": "fonts/DSEG/DSEG7Classic-Bold.ttf",
           "name": "FONT_DSEG_33",
-          "targetPlatforms": ["emery"],
+          "targetPlatforms": [
+            "emery"
+          ],
           "type": "font"
+        },
+        {
+          "characterRegex": "[-/0-9.:\\s]",
+          "file": "fonts/DSEG/DSEG7Classic-Bold.ttf",
+          "name": "FONT_DSEG_27S_27",
+          "targetPlatforms": [
+            "emery"
+          ],
+          "type": "font"
+        },
+        {
+          "characterRegex": "[-/0-9.:\\sA-Z]",
+          "file": "fonts/DSEG/DSEG14Classic-Regular.ttf",
+          "name": "FONT_DSEG_27_27",
+          "targetPlatforms": [
+            "emery"
+          ],
+          "type": "font"
+        },
+        {
+          "file": "images/Background.png",
+          "name": "IMAGE_BACKGROUND",
+          "type": "bitmap"
+        },
+        {
+          "file": "images/Battery.png",
+          "name": "IMAGE_UTILITIES",
+          "targetPlatforms": null,
+          "type": "bitmap"
+        },
+        {
+          "file": "images/MenuImage.png",
+          "menuIcon": true,
+          "name": "IMAGE_MENU",
+          "type": "bitmap"
         }
       ]
+    },
+    "sdkVersion": "3",
+    "targetPlatforms": [
+      "emery"
+    ],
+    "uuid": "44b4804e-e839-42e4-a314-bc01eff3d7ba",
+    "watchapp": {
+      "watchface": true
     }
-  }
+  },
+  "version": "3.0.1"
 }
