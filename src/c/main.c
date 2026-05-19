@@ -76,7 +76,9 @@ enum ConfigKeys {
 	CONFIG_KEY_DATEMODE=6,
 	CONFIG_KEY_SHOWSEC=7,
 	CONFIG_KEY_REDSEC=8,
-	CONFIG_KEY_SECSREFRESH=9
+	CONFIG_KEY_SECSREFRESH=9,
+	CONFIG_KEY_SHAKESECS=10,
+	CONFIG_KEY_SHAKESECSDUR=11
 };
 
 typedef struct {
@@ -86,6 +88,8 @@ typedef struct {
 	uint8_t showsec;
 	bool datefmt;
 	uint8_t secsrefresh;
+	bool shakesecs;
+	uint8_t shakesecsdur;
 } CfgDta_t;
 
 static const uint32_t segments[] = {100, 100, 100};
@@ -112,6 +116,8 @@ static CfgDta_t CfgData;
 static bool bIsCharging;
 static uint8_t aktBatt, aktBattAnim, aktHH, aktMM, aktSS;
 static AppTimer *timer_batt;
+static AppTimer *s_shake_timer;
+static bool s_shake_active;
 static GPath *hour_arrow, *minute_arrow, *second_arrow;
 
 char ddmmBuffer[] = "00-00";
@@ -281,6 +287,31 @@ static void secs_update_proc(Layer *layer, GContext *ctx)
 */
 }
 //-----------------------------------------------------------------------------------------------------------------------
+static void shake_timer_callback(void *data)
+{
+	s_shake_active = false;
+	s_shake_timer = NULL;
+}
+//-----------------------------------------------------------------------------------------------------------------------
+static void accel_tap_handler(AccelAxisType axis, int32_t direction)
+{
+	if (!CfgData.shakesecs) return;
+	s_shake_active = true;
+	if (s_shake_timer) app_timer_cancel(s_shake_timer);
+	if (CfgData.shakesecsdur > 0)
+		s_shake_timer = app_timer_register((uint32_t)CfgData.shakesecsdur * 1000, shake_timer_callback, NULL);
+	// Force an immediate seconds refresh
+	time_t temp = time(NULL);
+	struct tm *t = localtime(&temp);
+	aktSS = t->tm_sec;
+	layer_mark_dirty(secs_layer);
+	if (!CfgData.datemode)
+	{
+		strftime(ssBuffer, sizeof(ssBuffer), "%S", t);
+		text_layer_set_text(ss_layer, ssBuffer);
+	}
+}
+//-----------------------------------------------------------------------------------------------------------------------
 void tick_handler(struct tm *tick_time, TimeUnits units_changed)
 {
 	aktHH = tick_time->tm_hour;
@@ -288,7 +319,7 @@ void tick_handler(struct tm *tick_time, TimeUnits units_changed)
 
 	if (CfgData.showsec != 0)
 	{
-		uint8_t refresh = CfgData.secsrefresh;
+		uint8_t refresh = s_shake_active ? 1 : CfgData.secsrefresh;
 		bool do_refresh;
 		if (refresh == 60)
 			do_refresh = (tick_time->tm_sec == 0 || units_changed == MINUTE_UNIT);
@@ -405,6 +436,16 @@ static void update_configuration(void)
 	else
 		CfgData.secsrefresh = 1;
 
+    if (persist_exists(CONFIG_KEY_SHAKESECS))
+		CfgData.shakesecs = persist_read_bool(CONFIG_KEY_SHAKESECS);
+	else
+		CfgData.shakesecs = false;
+
+    if (persist_exists(CONFIG_KEY_SHAKESECSDUR))
+		CfgData.shakesecsdur = (uint8_t)persist_read_int(CONFIG_KEY_SHAKESECSDUR);
+	else
+		CfgData.shakesecsdur = 10;
+
 	app_log(APP_LOG_LEVEL_DEBUG, __FILE__, __LINE__, "Curr Conf: inv:%d, datemode:%d, vibr:%d, vibr_bt:%d, secs:%d, showsec:%d, datefmt:%d", CfgData.inv, CfgData.datemode, CfgData.vibr, CfgData.vibr_bt, CfgData.secs, CfgData.showsec, CfgData.datefmt);
 	
 	Layer *window_layer = window_get_root_layer(window);
@@ -440,6 +481,16 @@ static void update_configuration(void)
 	layer_remove_from_parent(inverter_layer_get_layer(inv_layer));
 	if (CfgData.inv)
 		layer_add_child(window_layer, inverter_layer_get_layer(inv_layer));
+
+	//Shake-to-show-seconds
+	if (CfgData.shakesecs)
+		accel_tap_service_subscribe(accel_tap_handler);
+	else
+	{
+		accel_tap_service_unsubscribe();
+		s_shake_active = false;
+		if (s_shake_timer) { app_timer_cancel(s_shake_timer); s_shake_timer = NULL; }
+	}
 	
 	//Get a time structure so that it doesn't start blank
 	time_t temp = time(NULL);
@@ -501,6 +552,12 @@ void in_received_handler(DictionaryIterator *received, void *ctx)
 
 		if (akt_tuple->key == CONFIG_KEY_SECSREFRESH)
 			persist_write_int(CONFIG_KEY_SECSREFRESH, akt_tuple->value->int32);
+
+		if (akt_tuple->key == CONFIG_KEY_SHAKESECS)
+			persist_write_bool(CONFIG_KEY_SHAKESECS, akt_tuple->value->int32 != 0);
+
+		if (akt_tuple->key == CONFIG_KEY_SHAKESECSDUR)
+			persist_write_int(CONFIG_KEY_SHAKESECSDUR, akt_tuple->value->int32);
 		
 		akt_tuple = dict_read_next(received);
 	}
@@ -684,6 +741,8 @@ void handle_init(void)
 void handle_deinit(void) 
 {
 	app_timer_cancel(timer_batt);
+	if (s_shake_timer) app_timer_cancel(s_shake_timer);
+	accel_tap_service_unsubscribe();
 	app_message_deregister_callbacks();
 	tick_timer_service_unsubscribe();
 	battery_state_service_unsubscribe();

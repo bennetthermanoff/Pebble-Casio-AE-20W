@@ -18,6 +18,8 @@
       "redsec": 8,
       "secs": 4,
       "secsrefresh": 9,
+      "shakesecs": 10,
+      "shakesecsdur": 11,
       "showsec": 7,
       "vibr": 2,
       "vibr_bt": 5

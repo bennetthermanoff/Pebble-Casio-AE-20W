@@ -64,6 +64,21 @@ module.exports = [
       },
       {
         type: 'toggle',
+        messageKey: 'shakesecs',
+        label: 'Show Seconds on Shake',
+        defaultValue: false
+      },
+      {
+        type: 'slider',
+        messageKey: 'shakesecsdur',
+        label: 'Shake Seconds Duration (seconds)',
+        defaultValue: 10,
+        min: 0,
+        max: 30,
+        step: 1
+      },
+      {
+        type: 'toggle',
         messageKey: 'redsec',
         label: 'Red Current-Second Tick (Emery only)',
         defaultValue: false
