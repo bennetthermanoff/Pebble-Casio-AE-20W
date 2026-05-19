@@ -11,14 +11,15 @@ Pebble.addEventListener('webviewclosed', function(e) {
   try {
     var settings = clay.getSettings(e.response, false);
     var msg = {
-      inv:      settings.inv.value      ? 1 : 0,
-      vibr:     settings.vibr.value     ? 1 : 0,
-      datefmt:  settings.datefmt.value  ? 1 : 0,
-      secs:     settings.secs.value     ? 1 : 0,
-      vibr_bt:  settings.vibr_bt.value  ? 1 : 0,
-      datemode: settings.datemode.value ? 1 : 0,
-      showsec:  settings.showsec.value,
-      redsec:   settings.redsec.value   ? 1 : 0
+      inv:        settings.inv.value      ? 1 : 0,
+      vibr:       settings.vibr.value     ? 1 : 0,
+      datefmt:    settings.datefmt.value  ? 1 : 0,
+      secs:       settings.secs.value     ? 1 : 0,
+      vibr_bt:    settings.vibr_bt.value  ? 1 : 0,
+      datemode:   settings.datemode.value ? 1 : 0,
+      showsec:    settings.showsec.value,
+      redsec:     settings.redsec.value   ? 1 : 0,
+      secsrefresh: parseInt(settings.secsrefresh.value, 10) || 1
     };
     console.log('Sending settings: ' + JSON.stringify(msg));
     Pebble.sendAppMessage(msg,

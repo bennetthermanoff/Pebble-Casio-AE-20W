@@ -75,7 +75,8 @@ enum ConfigKeys {
 	CONFIG_KEY_VIBR_BT=5,
 	CONFIG_KEY_DATEMODE=6,
 	CONFIG_KEY_SHOWSEC=7,
-	CONFIG_KEY_REDSEC=8
+	CONFIG_KEY_REDSEC=8,
+	CONFIG_KEY_SECSREFRESH=9
 };
 
 typedef struct {
@@ -84,6 +85,7 @@ typedef struct {
 	bool secs, redsec;
 	uint8_t showsec;
 	bool datefmt;
+	uint8_t secsrefresh;
 } CfgDta_t;
 
 static const uint32_t segments[] = {100, 100, 100};
@@ -284,15 +286,28 @@ void tick_handler(struct tm *tick_time, TimeUnits units_changed)
 	aktHH = tick_time->tm_hour;
 	aktMM = tick_time->tm_min;
 
-	if (CfgData.showsec != 0 && ((tick_time->tm_sec % CfgData.showsec) == 0 || units_changed == MINUTE_UNIT))
+	if (CfgData.showsec != 0)
 	{
-		aktSS = tick_time->tm_sec;
-		layer_mark_dirty(secs_layer);
+		uint8_t refresh = CfgData.secsrefresh;
+		bool do_refresh;
+		if (refresh == 60)
+			do_refresh = (tick_time->tm_sec == 0 || units_changed == MINUTE_UNIT);
+		else
+			do_refresh = ((tick_time->tm_sec % refresh) == 0 || units_changed == MINUTE_UNIT);
 
-		if (!CfgData.datemode)
+		if (do_refresh)
 		{
-			strftime(ssBuffer, sizeof(ssBuffer), "%S", tick_time);
-			text_layer_set_text(ss_layer, ssBuffer);
+			aktSS = (refresh == 60) ? 0 : tick_time->tm_sec;
+			layer_mark_dirty(secs_layer);
+
+			if (!CfgData.datemode)
+			{
+				if (refresh == 60)
+					strcpy(ssBuffer, "00");
+				else
+					strftime(ssBuffer, sizeof(ssBuffer), "%S", tick_time);
+				text_layer_set_text(ss_layer, ssBuffer);
+			}
 		}
 	}
 
@@ -384,6 +399,11 @@ static void update_configuration(void)
 		CfgData.redsec = persist_read_bool(CONFIG_KEY_REDSEC);
 	else
 		CfgData.redsec = false;
+
+    if (persist_exists(CONFIG_KEY_SECSREFRESH))
+		CfgData.secsrefresh = (uint8_t)persist_read_int(CONFIG_KEY_SECSREFRESH);
+	else
+		CfgData.secsrefresh = 1;
 
 	app_log(APP_LOG_LEVEL_DEBUG, __FILE__, __LINE__, "Curr Conf: inv:%d, datemode:%d, vibr:%d, vibr_bt:%d, secs:%d, showsec:%d, datefmt:%d", CfgData.inv, CfgData.datemode, CfgData.vibr, CfgData.vibr_bt, CfgData.secs, CfgData.showsec, CfgData.datefmt);
 	
@@ -478,6 +498,9 @@ void in_received_handler(DictionaryIterator *received, void *ctx)
 
 		if (akt_tuple->key == CONFIG_KEY_REDSEC)
 			persist_write_bool(CONFIG_KEY_REDSEC, akt_tuple->value->int32 != 0);
+
+		if (akt_tuple->key == CONFIG_KEY_SECSREFRESH)
+			persist_write_int(CONFIG_KEY_SECSREFRESH, akt_tuple->value->int32);
 		
 		akt_tuple = dict_read_next(received);
 	}

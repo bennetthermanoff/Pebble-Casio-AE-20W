@@ -49,6 +49,20 @@ module.exports = [
         ]
       },
       {
+        type: 'select',
+        messageKey: 'secsrefresh',
+        label: 'Seconds Digits Refresh Interval',
+        defaultValue: '1',
+        options: [
+          { label: 'Every second',           value: '1'  },
+          { label: 'Every 5s',               value: '5'  },
+          { label: 'Every 10s',              value: '10' },
+          { label: 'Every 15s',              value: '15' },
+          { label: 'Every 30s',              value: '30' },
+          { label: 'Every minute (show 00)', value: '60' }
+        ]
+      },
+      {
         type: 'toggle',
         messageKey: 'redsec',
         label: 'Red Current-Second Tick (Emery only)',
