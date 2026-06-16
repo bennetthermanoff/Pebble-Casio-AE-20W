@@ -78,7 +78,9 @@ enum ConfigKeys {
 	CONFIG_KEY_REDSEC=8,
 	CONFIG_KEY_SECSREFRESH=9,
 	CONFIG_KEY_SHAKESECS=10,
-	CONFIG_KEY_SHAKESECSDUR=11
+	CONFIG_KEY_SHAKESECSDUR=11,
+	CONFIG_KEY_INDIGLOW_EN=12,
+	CONFIG_KEY_INDIGLOW_COLOR=13
 };
 
 typedef struct {
@@ -90,6 +92,8 @@ typedef struct {
 	uint8_t secsrefresh;
 	bool shakesecs;
 	uint8_t shakesecsdur;
+	bool indiglow_en;
+	uint32_t indiglow_color;
 } CfgDta_t;
 
 static const uint32_t segments[] = {100, 100, 100};
@@ -455,6 +459,19 @@ static void update_configuration(void)
 	else
 		CfgData.shakesecsdur = 10;
 
+    if (persist_exists(CONFIG_KEY_INDIGLOW_EN))
+		CfgData.indiglow_en = persist_read_bool(CONFIG_KEY_INDIGLOW_EN);
+	else
+		CfgData.indiglow_en = false;
+
+    if (persist_exists(CONFIG_KEY_INDIGLOW_COLOR))
+		CfgData.indiglow_color = (uint32_t)persist_read_int(CONFIG_KEY_INDIGLOW_COLOR);
+	else
+		CfgData.indiglow_color = 0x44F841;
+
+	if (CfgData.indiglow_en)
+		light_set_color_rgb888(CfgData.indiglow_color);
+
 	app_log(APP_LOG_LEVEL_DEBUG, __FILE__, __LINE__, "Curr Conf: inv:%d, datemode:%d, vibr:%d, vibr_bt:%d, secs:%d, showsec:%d, datefmt:%d", CfgData.inv, CfgData.datemode, CfgData.vibr, CfgData.vibr_bt, CfgData.secs, CfgData.showsec, CfgData.datefmt);
 	
 	Layer *window_layer = window_get_root_layer(window);
@@ -569,6 +586,12 @@ void in_received_handler(DictionaryIterator *received, void *ctx)
 
 		if (akt_tuple->key == CONFIG_KEY_SHAKESECSDUR)
 			persist_write_int(CONFIG_KEY_SHAKESECSDUR, akt_tuple->value->int32);
+
+		if (akt_tuple->key == CONFIG_KEY_INDIGLOW_EN)
+			persist_write_bool(CONFIG_KEY_INDIGLOW_EN, akt_tuple->value->int32 != 0);
+
+		if (akt_tuple->key == CONFIG_KEY_INDIGLOW_COLOR)
+			persist_write_int(CONFIG_KEY_INDIGLOW_COLOR, akt_tuple->value->int32);
 		
 		akt_tuple = dict_read_next(received);
 	}

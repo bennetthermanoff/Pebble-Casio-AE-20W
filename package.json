@@ -20,6 +20,8 @@
       "secsrefresh": 9,
       "shakesecs": 10,
       "shakesecsdur": 11,
+      "indiglow_en": 12,
+      "indiglow_color": 13,
       "showsec": 7,
       "vibr": 2,
       "vibr_bt": 5

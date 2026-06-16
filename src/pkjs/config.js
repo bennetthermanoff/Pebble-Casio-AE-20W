@@ -103,5 +103,25 @@ module.exports = [
       }
     ]
   },
+  {
+    type: 'section',
+    items: [
+      { type: 'heading', defaultValue: 'Indiglow' },
+      {
+        type: 'toggle',
+        messageKey: 'indiglow_en',
+        label: 'Enable Indiglow Color',
+        defaultValue: false
+      },
+      {
+        type: 'color',
+        messageKey: 'indiglow_color',
+        label: 'Indiglow Color',
+        defaultValue: '#44F841',
+        sunlight: true,
+        allowGray: false
+      }
+    ]
+  },
   { type: 'submit', defaultValue: 'Save' }
 ];
