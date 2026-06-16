@@ -287,10 +287,12 @@ static void secs_update_proc(Layer *layer, GContext *ctx)
 */
 }
 //-----------------------------------------------------------------------------------------------------------------------
+static void update_tick_subscription(void);
 static void shake_timer_callback(void *data)
 {
 	s_shake_active = false;
 	s_shake_timer = NULL;
+	update_tick_subscription();
 }
 //-----------------------------------------------------------------------------------------------------------------------
 static void accel_tap_handler(AccelAxisType axis, int32_t direction)
@@ -300,6 +302,7 @@ static void accel_tap_handler(AccelAxisType axis, int32_t direction)
 	if (s_shake_timer) app_timer_cancel(s_shake_timer);
 	if (CfgData.shakesecsdur > 0)
 		s_shake_timer = app_timer_register((uint32_t)CfgData.shakesecsdur * 1000, shake_timer_callback, NULL);
+	update_tick_subscription();
 	// Force an immediate seconds refresh
 	time_t temp = time(NULL);
 	struct tm *t = localtime(&temp);
@@ -387,6 +390,12 @@ void tick_handler(struct tm *tick_time, TimeUnits units_changed)
 		if (CfgData.vibr && tick_time->tm_min == 0)
 			vibes_enqueue_custom_pattern(vibe_pat); 	
 	}
+}
+//-----------------------------------------------------------------------------------------------------------------------
+static void update_tick_subscription(void)
+{
+	TimeUnits units = (!s_shake_active && CfgData.secsrefresh == 60) ? MINUTE_UNIT : SECOND_UNIT;
+	tick_timer_service_subscribe(units, (TickHandler)tick_handler);
 }
 //-----------------------------------------------------------------------------------------------------------------------
 static void update_configuration(void)
@@ -506,6 +515,8 @@ static void update_configuration(void)
 	//Set Bluetooth state
 	bool connected = bluetooth_connection_service_peek();
 	bluetooth_connection_handler(connected);
+
+	update_tick_subscription();
 }
 //-----------------------------------------------------------------------------------------------------------------------
 void in_received_handler(DictionaryIterator *received, void *ctx)
@@ -726,7 +737,7 @@ void handle_init(void)
     window_stack_push(window, true);
 
 	//Subscribe services
-	tick_timer_service_subscribe(SECOND_UNIT, (TickHandler)tick_handler);
+	update_tick_subscription();
 	battery_state_service_subscribe(&battery_state_service_handler);
 	bluetooth_connection_service_subscribe(&bluetooth_connection_handler);
 	
