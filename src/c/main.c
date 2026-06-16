@@ -431,7 +431,7 @@ static void update_configuration(void)
     if (persist_exists(CONFIG_KEY_SHOWSEC))
 		CfgData.showsec = persist_read_int(CONFIG_KEY_SHOWSEC);
 	else	
-		CfgData.showsec = 1;
+		CfgData.showsec = 60;
 	
     if (persist_exists(CONFIG_KEY_DATEFMT))
 		CfgData.datefmt = persist_read_bool(CONFIG_KEY_DATEFMT);
@@ -446,12 +446,12 @@ static void update_configuration(void)
     if (persist_exists(CONFIG_KEY_SHAKESECS))
 		CfgData.shakesecs = persist_read_bool(CONFIG_KEY_SHAKESECS);
 	else
-		CfgData.shakesecs = false;
+		CfgData.shakesecs = true;
 
     if (persist_exists(CONFIG_KEY_SHAKESECSDUR))
 		CfgData.shakesecsdur = (uint8_t)persist_read_int(CONFIG_KEY_SHAKESECSDUR);
 	else
-		CfgData.shakesecsdur = 10;
+		CfgData.shakesecsdur = 20;
 
     if (persist_exists(CONFIG_KEY_INDIGLOW_EN))
 		CfgData.indiglow_en = persist_read_bool(CONFIG_KEY_INDIGLOW_EN);

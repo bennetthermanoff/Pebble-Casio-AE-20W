@@ -38,7 +38,7 @@ module.exports = [
         type: 'select',
         messageKey: 'showsec',
         label: 'Seconds Update Interval (Arc & Digits)',
-        defaultValue: '1',
+        defaultValue: '60s',
         options: [
           { label: 'Never',                    value: 'nev' },
           { label: 'Every second',             value: '1'   },
@@ -53,13 +53,13 @@ module.exports = [
         type: 'toggle',
         messageKey: 'shakesecs',
         label: 'Show Seconds on Shake and Startup',
-        defaultValue: false
+        defaultValue: true
       },
       {
         type: 'slider',
         messageKey: 'shakesecsdur',
         label: 'Shake Seconds Duration (seconds)',
-        defaultValue: 10,
+        defaultValue: 20,
         min: 0,
         max: 30,
         step: 1
