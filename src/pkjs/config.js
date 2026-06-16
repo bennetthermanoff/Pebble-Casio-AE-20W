@@ -37,35 +37,22 @@ module.exports = [
       {
         type: 'select',
         messageKey: 'showsec',
-        label: 'Seconds Arc Update Interval',
+        label: 'Seconds Update Interval (Arc & Digits)',
         defaultValue: '1',
         options: [
-          { label: 'Never',        value: 'nev' },
-          { label: 'Every second', value: '1'   },
-          { label: 'Every 5s',     value: '05s' },
-          { label: 'Every 10s',    value: '10s' },
-          { label: 'Every 15s',    value: '15s' },
-          { label: 'Every 30s',    value: '30s' }
-        ]
-      },
-      {
-        type: 'select',
-        messageKey: 'secsrefresh',
-        label: 'Seconds Digits Refresh Interval',
-        defaultValue: '1',
-        options: [
-          { label: 'Every second',           value: '1'  },
-          { label: 'Every 5s',               value: '5'  },
-          { label: 'Every 10s',              value: '10' },
-          { label: 'Every 15s',              value: '15' },
-          { label: 'Every 30s',              value: '30' },
-          { label: 'Every minute (show 00)', value: '60' }
+          { label: 'Never',                    value: 'nev' },
+          { label: 'Every second',             value: '1'   },
+          { label: 'Every 5s',                 value: '05s' },
+          { label: 'Every 10s',                value: '10s' },
+          { label: 'Every 15s',                value: '15s' },
+          { label: 'Every 30s',                value: '30s' },
+          { label: 'Every minute (show 00)',    value: '60s' }
         ]
       },
       {
         type: 'toggle',
         messageKey: 'shakesecs',
-        label: 'Show Seconds on Shake',
+        label: 'Show Seconds on Shake and Startup',
         defaultValue: false
       },
       {

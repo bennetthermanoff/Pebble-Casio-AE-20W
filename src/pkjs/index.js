@@ -19,7 +19,6 @@ Pebble.addEventListener('webviewclosed', function(e) {
       datemode:   settings.datemode.value ? 1 : 0,
       showsec:    settings.showsec.value,
       redsec:     settings.redsec.value   ? 1 : 0,
-      secsrefresh: parseInt(settings.secsrefresh.value, 10) || 1,
       shakesecs:    settings.shakesecs.value    ? 1 : 0,
       shakesecsdur: parseInt(settings.shakesecsdur.value, 10) || 10,
       indiglow_en:    settings.indiglow_en.value ? 1 : 0,

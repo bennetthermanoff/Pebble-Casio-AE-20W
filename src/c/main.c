@@ -89,7 +89,6 @@ typedef struct {
 	bool secs, redsec;
 	uint8_t showsec;
 	bool datefmt;
-	uint8_t secsrefresh;
 	bool shakesecs;
 	uint8_t shakesecsdur;
 	bool indiglow_en;
@@ -326,7 +325,7 @@ void tick_handler(struct tm *tick_time, TimeUnits units_changed)
 
 	if (CfgData.showsec != 0)
 	{
-		uint8_t refresh = s_shake_active ? 1 : CfgData.secsrefresh;
+		uint8_t refresh = s_shake_active ? 1 : CfgData.showsec;
 		bool do_refresh;
 		if (refresh == 60)
 			do_refresh = (tick_time->tm_sec == 0 || units_changed == MINUTE_UNIT);
@@ -398,7 +397,7 @@ void tick_handler(struct tm *tick_time, TimeUnits units_changed)
 //-----------------------------------------------------------------------------------------------------------------------
 static void update_tick_subscription(void)
 {
-	TimeUnits units = (!s_shake_active && CfgData.secsrefresh == 60) ? MINUTE_UNIT : SECOND_UNIT;
+	TimeUnits units = (!s_shake_active && CfgData.showsec == 60) ? MINUTE_UNIT : SECOND_UNIT;
 	tick_timer_service_subscribe(units, (TickHandler)tick_handler);
 }
 //-----------------------------------------------------------------------------------------------------------------------
@@ -443,11 +442,6 @@ static void update_configuration(void)
 		CfgData.redsec = persist_read_bool(CONFIG_KEY_REDSEC);
 	else
 		CfgData.redsec = false;
-
-    if (persist_exists(CONFIG_KEY_SECSREFRESH))
-		CfgData.secsrefresh = (uint8_t)persist_read_int(CONFIG_KEY_SECSREFRESH);
-	else
-		CfgData.secsrefresh = 1;
 
     if (persist_exists(CONFIG_KEY_SHAKESECS))
 		CfgData.shakesecs = persist_read_bool(CONFIG_KEY_SHAKESECS);
@@ -525,6 +519,15 @@ static void update_configuration(void)
 	//Manually call the tick handler when the window is loading
 	tick_handler(t, MINUTE_UNIT);
 
+	//Startup fake shake: show seconds immediately for the chosen duration
+	if (CfgData.shakesecsdur > 0)
+	{
+		s_shake_active = true;
+		if (s_shake_timer) app_timer_cancel(s_shake_timer);
+		s_shake_timer = app_timer_register((uint32_t)CfgData.shakesecsdur * 1000, shake_timer_callback, NULL);
+		update_tick_subscription();
+	}
+
 	//Set Battery state
 	BatteryChargeState btchg = battery_state_service_peek();
 	battery_state_service_handler(btchg);
@@ -570,16 +573,14 @@ void in_received_handler(DictionaryIterator *received, void *ctx)
 				strcmp(akt_tuple->value->cstring, "05s") == 0 ? 5 : 
 				strcmp(akt_tuple->value->cstring, "10s") == 0 ? 10 : 
 				strcmp(akt_tuple->value->cstring, "15s") == 0 ? 15 : 
-				strcmp(akt_tuple->value->cstring, "30s") == 0 ? 30 : 1);
+				strcmp(akt_tuple->value->cstring, "30s") == 0 ? 30 :
+				strcmp(akt_tuple->value->cstring, "60s") == 0 ? 60 : 1);
 
 		if (akt_tuple->key == CONFIG_KEY_DATEFMT)
 			persist_write_bool(CONFIG_KEY_DATEFMT, akt_tuple->value->int32 != 0);
 
 		if (akt_tuple->key == CONFIG_KEY_REDSEC)
 			persist_write_bool(CONFIG_KEY_REDSEC, akt_tuple->value->int32 != 0);
-
-		if (akt_tuple->key == CONFIG_KEY_SECSREFRESH)
-			persist_write_int(CONFIG_KEY_SECSREFRESH, akt_tuple->value->int32);
 
 		if (akt_tuple->key == CONFIG_KEY_SHAKESECS)
 			persist_write_bool(CONFIG_KEY_SHAKESECS, akt_tuple->value->int32 != 0);
